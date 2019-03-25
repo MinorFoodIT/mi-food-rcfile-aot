@@ -11,8 +11,6 @@ const SimpleNodeLogger = require('simple-node-logger'),
 	},
 log = SimpleNodeLogger.createSimpleLogger( opts );
 
-let networkDrive = require('windows-network-drive');
-
 function writeReceipt(filename,filepath,eodFolder){
 	/*
 	var idx = _.findIndex(csvfiles, function(obj) {
@@ -112,12 +110,14 @@ fs.readdir(alohapath, function(err, items) {
 	//Aloha path ,filter only YYYYMMDD
 	var eodFolder = _.filter(items,function(folder){
 		//console.log(folder.indexOf('.'));
-		if((folder.startsWith(year[0]) || folder.startsWith(year[1]) ) && folder.indexOf('.') == -1){
+		if((folder.startsWith(year[0]) || folder.startsWith(year[1]) || folder.startsWith(year[2]) ) && folder.indexOf('.') == -1){
 			return true;
 		}else{
 			return false;
 		}
 	});
+	log.info(eodFolder);
+	
 	
 	//create folder for business rc log files
 	if(!fs.existsSync(alohapathtempRC)){
