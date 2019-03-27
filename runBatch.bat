@@ -4,6 +4,10 @@ REM set minimized=true
 
 cd C:\Minor Programs\RCDaily"
 
-start /min cmd /C "node ./genrcfile.js"
+start /wait cmd /C "node ./genrcfile.js"
+
+cd "C:\Program Files\GenerateSalesTextFile"
+start ExportSalesToText.exe"
+
 goto :EOF
 :minimized

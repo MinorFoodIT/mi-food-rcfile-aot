@@ -11,6 +11,21 @@ const SimpleNodeLogger = require('simple-node-logger'),
 	},
 log = SimpleNodeLogger.createSimpleLogger( opts );
 
+var year = ['2019','2020','2021'];
+var logPrefixName = 'ThaiAirportIntercept';
+var dateYYYYMMDD = moment().format('YYYY-MM-DD');
+//var logfile = 'Debout.'+logPrefixName+'.'+dateYYYYMMDD;
+//var path = __dirname+'/temp';
+//var eodfolder = moment().add(-1, 'days').format('YYYYMMDD');
+
+var alohapath = 'd:/Aloha';
+var alohapathtemp = 'd:/Aloha/TMP';
+var alohapathtempRC = 'd:/Aloha/TMP/RC';
+
+var ip = JSON.parse(fs.readFileSync('ip.json', 'utf8'));
+
+log.info('Start program on date '+dateYYYYMMDD);
+
 function writeReceipt(filename,filepath,eodFolder){
 	/*
 	var idx = _.findIndex(csvfiles, function(obj) {
@@ -89,20 +104,55 @@ function writeReceipt(filename,filepath,eodFolder){
     });
 }
 
-var year = ['2019','2020','2021'];
-var logPrefixName = 'ThaiAirportIntercept';
-var dateYYYYMMDD = moment().format('YYYY-MM-DD');
-//var logfile = 'Debout.'+logPrefixName+'.'+dateYYYYMMDD;
-//var path = __dirname+'/temp';
-//var eodfolder = moment().add(-1, 'days').format('YYYYMMDD');
+async function main(eodFolder){
+	//create folder for business rc log files
+	if(!fs.existsSync(alohapathtempRC)){
+		log.info('crate folder tmp/RC');
+		fs.mkdirSync(alohapathtempRC);
+	}
+	
+	//delete all RCYYYYMMDD.txt and YYYYMMDD.txt
+	var oldFiles = fs.readdirSync(alohapathtempRC)
+	//var rcFiles = _.filter(oldFiles,function(file){
+	//					return file.startsWith('RC');
+	//				});
+	await Promise.all(oldFiles.map(async (file) => {
+		//log.info('delete '+file);
+		await fs.unlinkSync(alohapathtempRC+'/'+file);
+	}));
+	
+	//Gather log data for one file per business day 
+	for (var i=0; i<eodFolder.length; i++) {
+		//log.info('EOD = '+eodFolder[i]);
+		if(ip.POS1 != ""){
+			//log.info('Gather log from ip '+ip.POS1);
+			await writeContentToFile(ip.POS1,eodFolder[i]);
+		}
+		if(ip.POS2 != ""){
+			//log.info('Gather log from ip '+ip.POS2);
+			await writeContentToFile(ip.POS2,eodFolder[i]);
+		}
+		if(ip.POS3 != ""){
+			//log.info('Gather log from ip '+ip.POS3);
+			await writeContentToFile(ip.POS3,eodFolder[i]);
+		}
+		if(ip.POS4 != ""){
+			//log.info('Gather log from ip '+ip.POS4);
+			await writeContentToFile(ip.POS4,eodFolder[i]);
+		}
+		if(ip.POS5 != ""){
+			//log.info('Gather log from ip '+ip.POS5);
+			await writeContentToFile(ip.POS5,eodFolder[i]);
+		}			
+	}
+	
+	
+	setTimeout(function () {
+		generateRCfile();
+	}, 2000);
+	
+}
 
-var alohapath = 'd:/Aloha';
-var alohapathtemp = 'd:/Aloha/TMP';
-var alohapathtempRC = 'd:/Aloha/TMP/RC';
-
-var ip = JSON.parse(fs.readFileSync('ip.json', 'utf8'));
-
-log.info('Start program on date '+dateYYYYMMDD);
 fs.readdir(alohapath, function(err, items) {
 	//console.log(err);
 	//console.log(items);
@@ -116,58 +166,10 @@ fs.readdir(alohapath, function(err, items) {
 			return false;
 		}
 	});
-	log.info(eodFolder);
+	//log.info(eodFolder);
 	
-	
-	//create folder for business rc log files
-	if(!fs.existsSync(alohapathtempRC)){
-		log.info('crate folder tmp/RC');
-		fs.mkdirSync(alohapathtempRC);
-	}
-	
-	//delete all RCYYYYMMDD.txt and YYYYMMDD.txt
-	var oldFiles = fs.readdirSync(alohapathtempRC)
-	//var rcFiles = _.filter(oldFiles,function(file){
-	//					return file.startsWith('RC');
-	//				});
-	oldFiles.forEach(function(file){
-		 //log.info('delete >> '+file);
-		 fs.unlinkSync(alohapathtempRC+'/'+file);
-	});		
-	
-	setTimeout(function () {
-		log.info('wait 10 second');
-	}, 10000);
-	
-	//Gather log data for one file per business day 
-	for (var i=0; i<eodFolder.length; i++) {
-		if(ip.POS1 != ""){
-			//log.info('Gather log from ip '+ip.POS1);
-			writeContentToFile(ip.POS1,eodFolder[i]);
-		}
-		if(ip.POS2 != ""){
-			//log.info('Gather log from ip '+ip.POS2);
-			writeContentToFile(ip.POS2,eodFolder[i]);
-		}
-		if(ip.POS3 != ""){
-			//log.info('Gather log from ip '+ip.POS3);
-			writeContentToFile(ip.POS3,eodFolder[i]);
-		}
-		if(ip.POS4 != ""){
-			//log.info('Gather log from ip '+ip.POS4);
-			writeContentToFile(ip.POS4,eodFolder[i]);
-		}
-		if(ip.POS5 != ""){
-			//log.info('Gather log from ip '+ip.POS5);
-			writeContentToFile(ip.POS5,eodFolder[i]);
-		}			
-	}
-	
-	setTimeout(function () {
-		generateRCfile();
-	}, 60000);
+	main(eodFolder);
 		
-	
 });
 
 function generateRCfile(){
@@ -183,6 +185,7 @@ function generateRCfile(){
 }
 
 function writeContentToFile(iphost,eodFolder){
+	 return new Promise(function(resolve, reject) {
 			var alohapathtemp = '\\\\'+iphost+'\\bootdrv\\Aloha\\TMP';
 			var logfilePrefix = 'Debout.'+logPrefixName+'.'+splitDash(eodFolder);
 			fs.readdir(alohapathtemp, function(err, items) {
@@ -194,8 +197,12 @@ function writeContentToFile(iphost,eodFolder){
 				rawThaiAotTextFile.forEach(function(file) {
 					var contents = fs.readFileSync(alohapathtemp+ '\\' + file, 'utf8');
 					fs.appendFileSync(alohapathtempRC+'/'+eodFolder+'.txt', contents);
+					//log.info('append data from '+file);
 				})
+				//log.info('resolve');
+				resolve(true);
 			});
+	 });
 }
 
 
