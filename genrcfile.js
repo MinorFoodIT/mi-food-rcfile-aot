@@ -55,12 +55,18 @@ function writeReceipt(filename,filepath,eodFolder){
         // 'line' contains the current line without the trailing newline character.
         if(line.indexOf('INFO  ThaiAirportWrapper.RCAgentWrapper  - Receipt -') > -1){
             var idx = line.indexOf('INFO  ThaiAirportWrapper.RCAgentWrapper  - Receipt -');
-
-            var jsonStr = line.substring(idx+'INFO  ThaiAirportWrapper.RCAgentWrapper  - Receipt -'.length+1).trim();
+	    var jsonStr = line.substring(idx+'INFO  ThaiAirportWrapper.RCAgentWrapper  - Receipt -'.length+1).trim();
             receipt = JSON.parse(jsonStr);
         }
-
-        if(line.indexOf('ThaiAirportCommon.Utilities.XmlUtils  - String to append') > -1){
+						 
+	if(line.indexOf('INFO  ThaiAirport.Intercept.InterceptFacade  - Receipt -') > -1){
+	    var idx = line.indexOf('INFO  ThaiAirport.Intercept.InterceptFacade  - Receipt -');
+	    var jsonStr = line.substring(idx+'INFO  ThaiAirport.Intercept.InterceptFacade  - Receipt -'.length+1).trim();
+	    receipt = JSON.parse(jsonStr);
+	}
+					
+        //if(line.indexOf('ThaiAirportCommon.Utilities.XmlUtils  - String to append') > -1){
+	if(line.indexOf('Common.Utilities.XmlUtils  - String to append') > -1){
             if(receipt.refNo){
                 //String to append: &lt;PRINTLEFTRIGHT&gt;&lt;LEFT&gt;RC:
                 //0313112313046623
