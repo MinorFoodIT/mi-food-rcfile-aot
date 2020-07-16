@@ -11,7 +11,7 @@
   "dependencies": {
     "csv-writer": "^1.2.0",
     "line-by-line": "^0.1.6",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "sf": "^0.2.0",
     "simple-node-logger": "^18.12.22",
